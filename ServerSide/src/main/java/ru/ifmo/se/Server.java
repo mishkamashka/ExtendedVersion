@@ -3,11 +3,10 @@ package ru.ifmo.se;
 import com.google.gson.JsonSyntaxException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import ru.ifmo.se.exceptions.NotAvailableForJORMClass;
+import ru.ifmo.se.person.Person;
 
 import java.io.*;
 import java.net.*;
-import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +15,8 @@ public class Server extends Thread {
     //Серверный модуль должен реализовывать все функции управления коллекцией
     //в интерактивном режиме, кроме отображения текста в соответствии с сюжетом предметной области.
     private static ServerSocket serverSocket;
-    protected static SortedSet<Person> collec = Collections.synchronizedSortedSet(new TreeSet<Person>());
+    static SortedSet<Person> collec = Collections.synchronizedSortedSet(new TreeSet<Person>());
+    private static Server instance;
 
     @Override
     public void run() {
@@ -28,17 +28,6 @@ public class Server extends Thread {
         }
         System.out.println("Server is now running.");
         try {
-            PSQLConnection psqlConnection = new PSQLConnection("localhost", 9999, "studs", "s243877", "joc574");
-            DDL ddl = new DDL(psqlConnection.getConnection());
-            DML dml = new DML(psqlConnection.getConnection());
-            Clothes clothes = new Jacket("red");
-            ddl.createTable(clothes.getClass());
-            dml.insert(clothes);
-            psqlConnection.getConnection().close();
-        } catch(SQLException | NotAvailableForJORMClass e) {
-            e.printStackTrace();
-        }
-        try {
             while (true) {
                 Socket client = serverSocket.accept();
                 Connection connec = new Connection(client);
@@ -47,6 +36,16 @@ public class Server extends Thread {
             System.out.println("Server is not listening.");
             e.printStackTrace();
         }
+    }
+
+    private Server(){
+    }
+
+    public static Server getInstance(){
+        if (instance == null){
+            instance = new Server();
+        }
+        return instance;
     }
 }
 
@@ -59,7 +58,7 @@ class Connection extends Thread {
     private static String filepath;
     private static File file;
     private static ReentrantLock locker = new ReentrantLock();
-    private boolean isAuthorized;
+    private boolean isAuthorized = false;
     private String password = "a";
 
     Connection(Socket client){
@@ -107,7 +106,6 @@ class Connection extends Thread {
             }
         } catch (IOException e){
             System.out.println("Client " + client.toString() + " has disconnected.");
-            //e.printStackTrace();
         }
         System.out.println("Client " + client.toString() + " has authorized.");
 
@@ -124,26 +122,12 @@ class Connection extends Thread {
                             this.clear();
                             this.getCollection();
                             break;
-                        case "qw":
-                            this.getCollection();
-                        case "q":
-                            this.quit();
-                            break;
-                        case "load_file":
-                            this.load();
-                            toClient.println();
-                            break;
-                        case "save_file":
-                            this.save();
-                            break;
                         default:
-                            toClient.println("Not valid command. Try one of those:\nhelp - get help;\nclear - clear the collection;" +
-                                    "\nload - load the collection again;\nadd {element} - add new element to collection;" +
-                                    "\nremove_greater {element} - remove elements greater than given;\n" +
-                                    "show - show the collection;\nquit - quit;\n");
+                            toClient.println("Not valid command.\n");
                     }
                 }catch (NullPointerException e){
-                    System.out.println("Null command received.");
+                    System.out.println("Client is sending null command.");
+                    this.quit();
                 }
             } catch (IOException e) {
                 System.out.println("Connection with the client is lost.");
@@ -177,10 +161,10 @@ class Connection extends Thread {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     String jsonObjectAsString = jsonObject.toString();
-                    Person person = JsonConverter.jsonToObject(jsonObjectAsString, Known.class);
-                    person.getSteps_from_door(); //so they are not 0 (just needed to be so)
-                    person.setState(); // erh.. the same stuff
-                    person.set_X_Y();
+                    Person person = JsonConverter.jsonToObject(jsonObjectAsString, Person.class);
+                    //TODO: generating person by Builder (Director)
+                    //person.setSteps_from_door();
+                    //person.setState();
                     person.setTime(ZonedDateTime.now());
                     Server.collec.add(person);
                 }
@@ -189,7 +173,7 @@ class Connection extends Thread {
                 System.out.println("File is empty.");
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Collection can not be loaded.\nFile "+filename+" is not accessible: it does not exist or permission denied.");
+            System.out.println("Collection can not be loaded.\nFile " + filename + " is not accessible: it does not exist or permission denied.");
             e.printStackTrace();
         }
         locker.unlock();
@@ -198,10 +182,7 @@ class Connection extends Thread {
     private void getCollection(){
         locker.lock();
         final ObjectInputStream fromClient;
-        DataInputStream dataInputStream;
         try{
-            dataInputStream = new DataInputStream(client.getInputStream());
-            Scanner sc = new Scanner(dataInputStream);
             fromClient = new ObjectInputStream(client.getInputStream());
         } catch (IOException e){
             System.out.println("Can not create ObjectInputStream: "+e.toString());
@@ -233,30 +214,9 @@ class Connection extends Thread {
         System.out.println("Client has disconnected.");
     }
 
-    private void save(){
-        locker.lock();
+    public static void save(){
         try {
             Writer writer = new FileWriter(file);
-            //
-            //Server.collec.forEach(person -> writer.write(Connection.objectToJson(person)));
-            for (Person person: Server.collec){
-                writer.write(JsonConverter.objectToJson(person));
-            }
-            writer.close();
-            System.out.println("Collection has been saved.");
-            toClient.println("Collection has been saved to file.\n");
-        } catch (IOException e) {
-            System.out.println("Collection can not be saved.\nFile "+filename+" is not accessible: it does not exist or permission denied.");
-            e.printStackTrace();
-        }
-        locker.unlock();
-    }
-
-    public static void saveOnQuit(){
-        try {
-            Writer writer = new FileWriter(file);
-            //
-            //Server.collec.forEach(person -> writer.write(Connection.objectToJson(person)));
             for (Person person: Server.collec){
                 writer.write(JsonConverter.objectToJson(person));
             }
@@ -306,10 +266,9 @@ class Connection extends Thread {
     public static String addObject(String data) {
         locker.lock();
         try {
-            Person person = JsonConverter.jsonToObject(data, Known.class);
-            person.setState();
-            person.getSteps_from_door();
-            person.set_X_Y();
+            Person person = JsonConverter.jsonToObject(data, Person.class);
+            person.generateState();
+            person.setSteps_from_door((int) (Math.random()*100));
             if (person.getName() != null) {
                 if (Server.collec.add(person)) {
                     System.out.println("Current collection has been updated by server.");
@@ -331,7 +290,7 @@ class Connection extends Thread {
 
     public static String removeGreater(String data) {
         locker.lock();
-        Person a = JsonConverter.jsonToObject(data, Known.class);
+        Person a = JsonConverter.jsonToObject(data, Person.class);
         Server.collec.removeIf(person -> a.compareTo(person) > 0);
         locker.unlock();
         return ("Objects greater than given have been removed.");

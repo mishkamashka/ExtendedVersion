@@ -1,5 +1,7 @@
 package ru.ifmo.se;
 
+import ru.ifmo.se.person.Person;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -25,7 +27,7 @@ public class GraphPanel extends JPanel{
         for (Person person: app.collec){
             ellipse2D = new Ellipse2D.Double(person.getX(), person.getY(),40,20);
 
-            g.setColor(person.getColor());
+            g.setColor(person.getState().getColor());
             g.draw(ellipse2D);
             ellipsMap.put(person, ellipse2D);
         }

@@ -1,24 +1,21 @@
 package ru.ifmo.se;
 
 import ru.ifmo.se.enums.State;
+import ru.ifmo.se.person.Known;
+import ru.ifmo.se.person.Person;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
-import java.io.IOException;
-import java.nio.ByteOrder;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class MainPanel extends JFrame {
     ResourceBundle bundle;

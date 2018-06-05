@@ -3,6 +3,7 @@ package ru.ifmo.se;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import ru.ifmo.se.person.*;
 
 public class JsonConverter {
     public static <T> T jsonToObject(String tempString, Class<T> classT) throws JsonSyntaxException {

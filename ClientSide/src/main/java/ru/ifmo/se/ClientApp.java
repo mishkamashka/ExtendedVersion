@@ -1,11 +1,11 @@
 package ru.ifmo.se;
 
 import com.google.gson.JsonSyntaxException;
+import ru.ifmo.se.person.Known;
+import ru.ifmo.se.person.Person;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 import java.util.Set;
@@ -20,76 +20,7 @@ public class ClientApp {
     private static SocketChannel channel = null;
     private static DataInput fromServer;
     static PrintStream toServer;
-    private Scanner sc;
     private ReentrantLock locker = new ReentrantLock();
-
-    public void main() {
-        this.connect();
-        toServer.println("data_request");
-        this.clear();
-        this.load();
-        this.gettingResponse();
-        sc = new Scanner(System.in);
-        String command;
-        String input;
-        String[] buf;
-        String data = "";
-        while (true) {
-            input = sc.nextLine();
-            buf = input.split(" ");
-            command = buf[0];
-            if (buf.length > 1)
-                data = buf[1];
-            switch (command) {
-                case "load":
-                    toServer.println("data_request");
-                    this.clear();
-                    this.load();
-                    this.gettingResponse();
-                    break;
-                case "show":
-                    this.show();
-                    break;
-                case "describe":
-                    this.describe();
-                    break;
-                case "add":
-                    this.addObject(data);
-                    break;
-                case "remove_greater":
-                    this.removeGreater(data);
-                    break;
-                case "clear":
-                    this.clear();
-                    break;
-                case "help":
-                    this.help();
-                    break;
-                case "save":
-                    toServer.println(command);
-                    this.giveCollection();
-                    this.gettingResponse();
-                    break;
-                case "qw":
-                    toServer.println(command);
-                    this.giveCollection();
-                    this.gettingResponse();
-                    this.quit();
-                    break;
-                case "q":
-                    toServer.println(command);
-                    this.quit();
-                    break;
-                default:
-                    try{
-                        toServer.println(command);
-                        this.gettingResponse();
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-            }
-        }
-    }
 
     public void connect(){
         locker.lock();

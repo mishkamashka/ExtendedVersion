@@ -9,25 +9,25 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class MainPanel extends JFrame {
-    JMenu menu;
-    JMenuBar jMenuBar;
-    JMenuItem jMenuItem;
-    JLabel label;
-    JLabel resLabel;
-    JTextField textField;
-    JTree jTree;
-    JButton addButton;
-    JButton remButton;
-    JPanel jPanel;
-    Container container;
-    DefaultTreeModel model;
-    DefaultMutableTreeNode root;
-    GroupLayout groupLayout;
+    private JMenu menu;
+    private JMenuBar jMenuBar;
+    private JMenuItem jMenuItem;
+    private JLabel label;
+    private JLabel resLabel;
+    private JTextField textField;
+    private JTree jTree;
+    private JButton addButton;
+    private JButton remButton;
+    private JPanel jPanel;
+    private Container container;
+    private DefaultTreeModel model;
+    private DefaultMutableTreeNode root;
+    private GroupLayout groupLayout;
 
 
     public MainPanel() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Lab 7. ServerSide");
+        setTitle("Lab. ServerSide");
         createMenu();
         container = getContentPane();
         jPanel = new JPanel(new BorderLayout());
@@ -73,7 +73,7 @@ public class MainPanel extends JFrame {
         setVisible(true);
     }
 
-    public void updateTree(){ //to google: how to update jtree
+    public void updateTree(){
         root.removeAllChildren();
         Server.collec.forEach(person -> root.add(new DefaultMutableTreeNode(person.toString())));
         jTree.updateUI();
@@ -84,39 +84,27 @@ public class MainPanel extends JFrame {
         jMenuBar = new JMenuBar();
         menu = new JMenu("Menu");
         jMenuItem = new JMenuItem("Load collection from the file (Current collection will be lost)");
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                Connection.filemaker();
-                try{
-                    Connection.clear();
-                    Connection.load();
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
-                updateTree();
+        jMenuItem.addActionListener(a -> {
+            Connection.filemaker();
+            try{
+                Connection.clear();
+                Connection.load();
+            } catch (IOException e){
+                e.printStackTrace();
             }
+            updateTree();
         });
         menu.add(jMenuItem);
         jMenuItem = new JMenuItem("Load current collection");
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                updateTree();
-            }
-        });
+        jMenuItem.addActionListener(a -> updateTree());
         menu.add(jMenuItem);
         jMenuItem = new JMenuItem("Save current collection to the file");
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                Connection.saveOnQuit();
-            }
-        });
+        jMenuItem.addActionListener(a -> Connection.save());
         menu.add(jMenuItem);
         jMenuItem = new JMenuItem("Clear current collection");
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                Connection.clear();
-                updateTree();
-            }
+        jMenuItem.addActionListener(a -> {
+            Connection.clear();
+            updateTree();
         });
         menu.add(jMenuItem);
         jMenuBar.add(menu);
@@ -126,24 +114,18 @@ public class MainPanel extends JFrame {
     public void createOptions(){
         label = new JLabel("Object to add/Remove objects greater than:");
         resLabel = new JLabel();
-        textField = new JTextField("{\"name\":\"Andy\"}",15);
+        textField = new JTextField("{\"name\":\"Andy\",\"lastname\":\"Black\"}",30);
         addButton = new JButton("Add object");
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String string = textField.getText();
-                resLabel.setText(Connection.addObject(string));
-                updateTree();
-            }
+        addButton.addActionListener(e -> {
+            String string = textField.getText();
+            resLabel.setText(Connection.addObject(string));
+            updateTree();
         });
         remButton = new JButton("Remove greater objects");
-        remButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String string = textField.getText();
-                resLabel.setText(Connection.removeGreater(string));
-                updateTree();
-            }
+        remButton.addActionListener(e -> {
+            String string = textField.getText();
+            resLabel.setText(Connection.removeGreater(string));
+            updateTree();
         });
     }
 }

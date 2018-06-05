@@ -9,16 +9,15 @@ import java.awt.event.KeyListener;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class AuthPanel extends JFrame {
-    ClientApp app;
-    JButton okButton;
-    JButton cancelButton;
-    JLabel label;
-    JLabel serverAnsw;
-    JPasswordField textField;
-    Container container;
-    JPanel jPanel;
-    ReentrantLock lock = new ReentrantLock();
-    GroupLayout groupLayout;
+    private ClientApp app;
+    private JButton okButton;
+    private JButton cancelButton;
+    private JLabel label;
+    private JLabel serverAnsw;
+    private JPasswordField textField;
+    private Container container;
+    private JPanel jPanel;
+    private GroupLayout groupLayout;
 
     public AuthPanel(ClientApp app){
         super("Authorisation");
@@ -30,17 +29,13 @@ public class AuthPanel extends JFrame {
         groupLayout = new GroupLayout(jPanel);
         groupLayout.getAutoCreateGaps();
         container.add(jPanel);
-
         label = new JLabel("Enter password:");
         serverAnsw = new JLabel("Connecting to server...");
         textField = new JPasswordField();
         textField.setEchoChar('☀');
         textField.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
+            public void keyTyped(KeyEvent e) { }
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER){
@@ -49,9 +44,7 @@ public class AuthPanel extends JFrame {
                     String password = new String(chars);
                     try{
                         ClientApp.toServer.println(password);
-                    } catch (NullPointerException ee){
-
-                    }
+                    } catch (NullPointerException ee){ }
                     String answer = app.gettingResponse();
                     if (answer.startsWith("You've")) {
                         setVisible(false);
@@ -60,43 +53,31 @@ public class AuthPanel extends JFrame {
                     else
                         serverAnsw.setText(answer);
                 }
-
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
+            public void keyReleased(KeyEvent e) { }
         });
         okButton = new JButton("Ok");
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                char[] chars;
-                chars = textField.getPassword();
-                String password = new String(chars);
-                try{
-                    ClientApp.toServer.println(password);
-                } catch (NullPointerException ee){
+        okButton.addActionListener(e -> {
+            char[] chars;
+            chars = textField.getPassword();
+            String password = new String(chars);
+            try{
+                ClientApp.toServer.println(password);
+            } catch (NullPointerException ee){
 
-                }
-                String answer = app.gettingResponse();
-                if (answer.startsWith("You've")) {
-                    setVisible(false);
-                    MainPanel.isAuthorized = true;
-                }
-                else
-                    serverAnsw.setText(answer);
             }
+            String answer = app.gettingResponse();
+            if (answer.startsWith("You've")) {
+                setVisible(false);
+                MainPanel.isAuthorized = true;
+            }
+            else
+                serverAnsw.setText(answer);
         });
         cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
-
+        cancelButton.addActionListener(e -> System.exit(0));
         group();
         jPanel.setLayout(groupLayout);
         groupLayout.linkSize(textField);
@@ -104,7 +85,7 @@ public class AuthPanel extends JFrame {
         setVisible(true);
     }
 
-    public void group(){
+    private void group(){
         groupLayout.setVerticalGroup(
                 groupLayout.createSequentialGroup()
                         .addComponent(label).addGap(10)
@@ -121,9 +102,5 @@ public class AuthPanel extends JFrame {
                                 .addComponent(okButton).addGap(10)
                                 .addComponent(cancelButton)).addGap(10)
                         .addComponent(serverAnsw,200,250,300));
-    }
-
-    public void setLabel(String string){
-        serverAnsw.setText(string);
     }
 }
