@@ -3,23 +3,28 @@ package ru.ifmo.se.person;
 import java.util.Set;
 
 public class InteractionPresenter {
-    Conversation conversation;
+    private Conversation conversation;
+    private StringBuilder stringBuilder;
 
-    public void randomConversation() {
+    public String randomConversation() {
         conversation = new Conversation();
+        stringBuilder = new StringBuilder();
         PersonBuilder personBuilder = new PersonBuilder();
         Director.createSimplePerson(personBuilder);
         int amount = (int) (Math.random() * 100);
         for (int i = 0; i < amount; i++) {
             Director.createSimplePerson(personBuilder);
-            conversation.addPerson(personBuilder.getPerson());
+            stringBuilder.append(conversation.addPerson(personBuilder.getPerson())).append("\n");
         }
-        conversation.getPeople().forEach(person -> conversation.randomAction(person));
+        conversation.getPeople().forEach(person -> stringBuilder.append(conversation.randomAction(person)).append("\n"));
+        return stringBuilder.toString();
     }
 
-    public void conversationWithCollection(Set<Person> collec) {
+    public String conversationWithCollection(Set<Person> collec) {
         conversation = new Conversation();
-        collec.forEach(person -> conversation.addPerson(person));
-        collec.forEach(person -> conversation.randomAction(person));
+        stringBuilder = new StringBuilder();
+        collec.forEach(person -> stringBuilder.append(conversation.addPerson(person)).append("\n"));
+        collec.forEach(person -> stringBuilder.append(conversation.randomAction(person)).append("\n"));
+        return stringBuilder.toString();
     }
 }

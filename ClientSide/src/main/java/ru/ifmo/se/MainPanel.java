@@ -12,7 +12,7 @@ import java.awt.geom.Ellipse2D;
 import java.text.NumberFormat;
 import java.util.*;
 
-public class MainPanel extends JFrame {
+public class MainPanel extends JFrame {//TODO: текстовая панель, куда выовдится результат интеракшена, кнопки, вызывающие интеракшенпрезентер
     private ResourceBundle bundle;
     private JMenu menu;
     private JMenuBar jMenuBar;
