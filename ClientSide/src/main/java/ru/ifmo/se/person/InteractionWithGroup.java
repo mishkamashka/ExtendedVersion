@@ -5,14 +5,14 @@ import java.util.ArrayList;
 public interface InteractionWithGroup {
     ArrayList<Person> getList();
 
-    void addPerson(Person p);
+    String addPerson(Person p);
 
-    void removePerson(Person p);
+    String removePerson(Person p);
 
     boolean isAnyone();
 
     boolean isNotBored();
 
-    void setStateForEach(double chance);
+    String setStateForEach(double chance);
 
 }

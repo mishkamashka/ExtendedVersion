@@ -1,13 +1,12 @@
 package ru.ifmo.se.person;
 
 public interface TypeOfSpeech {
-    void sayHello(Person a, Person b);
-    void sayBye(Person a, Person b);
-    void tellStory(Person speaker);
-    void tellJoke(Person speaker);
-    void argue(Person a, Person b);
-    void makeDo(Person a, Person b, String thing);
-    void discuss(Person a, Person b, String thing);
-    void talk(Person a, Person b);
-    void sayPhrase(Person p, String s);
+    String sayHello(Person a, Person b);
+    String sayBye(Person a, Person b);
+    String tellStory(Person speaker);
+    String tellJoke(Person speaker);
+    String argue(Person a, Person b);
+    String discuss(Person a, Person b, String thing);
+    String talk(Person a, Person b);
+    String sayPhrase(Person p, String s);
 }

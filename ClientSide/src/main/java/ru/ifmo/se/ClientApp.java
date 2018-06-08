@@ -1,7 +1,6 @@
 package ru.ifmo.se;
 
 import com.google.gson.JsonSyntaxException;
-import ru.ifmo.se.person.Known;
 import ru.ifmo.se.person.Person;
 
 import java.io.*;
@@ -162,20 +161,20 @@ public class ClientApp {
     }
 
     public String removeGreater(String data) {
-        Person a = JsonConverter.jsonToObject(data, Known.class);
+        Person a = JsonConverter.jsonToObject(data, Person.class);
         this.collec.removeIf(person -> a.compareTo(person) > 0);
         return ("Objects greater than given have been removed.");
     }
 
     public String addObject(String data) {
         try {
-            Person person = JsonConverter.jsonToObject(data, Known.class);
+            Person person = JsonConverter.jsonToObject(data, Person.class);
             person.generateState();
             person.setSteps_from_door((int) (Math.random() * 100));
             if (person.getName() != null) {
                 if (this.collec.add(person)) {
                     System.out.println("Current collection has been updated by client.");
-                    return ("Object " + JsonConverter.jsonToObject(data, Known.class).toString() + " has been added.");
+                    return ("Object " + JsonConverter.jsonToObject(data, Person.class).toString() + " has been added.");
                 } else{
                     return ("This object is already in the collection.");
                 }

@@ -1,4 +1,4 @@
-package ru.ifmo.se.person;
+package ru.ifmo.se.person; //TODO: сделать вывод тексотв при интеракшенах не саутом, а через возврат строк.
 
 import ru.ifmo.se.enums.State;
 
@@ -7,122 +7,116 @@ import java.util.ArrayList;
 public class Conversation implements TypeOfSpeech {
     private InteractionWithGroup people = new Group();
 
-    public void sayHello(Person a, Person b) {
-        System.out.println(Message.saying(a) + " Hello, " + b.toString() + "!");
+    public String sayHello(Person a, Person b) {
+        return (Message.saying(a) + " Hello, " + b.toString() + "!");
     }
 
-    public void sayBye(Person a, Person b) {
-        System.out.println(Message.saying(a) + " Bye, " + b.toString() + "!");
+    public String sayBye(Person a, Person b) {
+        return (Message.saying(a) + " Bye, " + b.toString() + "!");
     }
 
-    public void tellStory(Person speaker) {
+    public String tellStory(Person speaker) {
+        String string = "";
         if (this.people.isNotBored())
-            System.out.println(Message.saying(speaker) + "I'm gonna tell you a story.\n" + Message.tellingStory(speaker));
-        this.people.setStateForEach(Math.random());
+            string = string + Message.saying(speaker) + "I'm gonna tell you a story.\n" + Message.tellingStory(speaker) + "\n";
+        return string + this.people.setStateForEach(Math.random());
     }
 
-    public void tellJoke(Person speaker) {
-        System.out.println(Message.saying(speaker) + "I'm gonna tell you a joke.\n" + Message.tellingJoke(speaker));
-        this.people.setStateForEach(Math.random() + 0.1);
+    public String tellJoke(Person speaker) {
+        return Message.saying(speaker) + "I'm gonna tell you a joke.\n" + Message.tellingJoke(speaker) + "\n" +
+                this.people.setStateForEach(Math.random() + 0.1);
     }
 
-    public void argue(Person a, Person b) {
+    public String argue(Person a, Person b) {
+        StringBuilder stringBuilder = new StringBuilder();
         if (a.getState() == State.ANGRY && b.getState() == State.ANGRY) {
-            System.out.println(Message.arguing(a, b));
+            stringBuilder.append(Message.arguing(a, b));
         }
         if (a.getState() != State.ANGRY && b.getState() == State.ANGRY)
-            System.out.println(Message.saying(b) + " Let's argue.\n"
-                    + Message.saying(a) + " I don't wanna argue.");
+            stringBuilder.append(Message.saying(b)).append(" Let's argue.\n").append(
+                    Message.saying(a)).append(" I don't wanna argue.");
         if (b.getState() != State.ANGRY && a.getState() == State.ANGRY)
-            System.out.println(Message.saying(a) + " Let's argue.\n"
-                    + Message.saying(b) + " I don't wanna argue.");
+            stringBuilder.append(Message.saying(a)).append(" Let's argue.\n").append(
+                    Message.saying(b)).append(" I don't wanna argue.");
         a.setState(State.NEUTRAL);
         b.setState(State.NEUTRAL);
+        return stringBuilder.toString();
     }
 
-    public void makeDo(Person a, Person b, String verb) {
-        System.out.println(Message.makingDo(a, b) + verb + ".");
-        if (Math.random() < 0.5)
-            b.setState(State.ANGRY);
+    public String discuss(Person a, Person b, String thing) {
+        return Message.discussing(a, b) + thing + ".\n" + this.people.setStateForEach(Math.random());
     }
 
-    public void discuss(Person a, Person b, String thing) {
-        System.out.println(Message.discussing(a, b) + thing + ".");
-        this.people.setStateForEach(Math.random());
+    public String talk(Person a, Person b) {
+        return Message.talking(a, b) + "\n" + this.people.setStateForEach(Math.random());
     }
 
-    public void talk(Person a, Person b) {
-        System.out.println(Message.talking(a, b));
-        this.people.setStateForEach(Math.random());
+    public String sayPhrase(Person p, String s) {
+        return (Message.saying(p) + s);
     }
 
-    public void sayPhrase(Person p, String s) {
-        System.out.println(Message.saying(p) + s);
-    }
-
-    public void addPerson(Person p) {
+    public String addPerson(Person p) {
+        StringBuilder stringBuilder = new StringBuilder();
         if (p == null)
-            return;
-        this.people.addPerson(p);
+            return "";
+        stringBuilder.append(this.people.addPerson(p));
         p.setState(State.NEUTRAL);
         ArrayList<Person> group = this.people.getList();
         if (!(group.size() - 1 == 0)) {
             for (Person g : group) {
                 if (g.hashCode() != p.hashCode())
-                    this.sayHello(g, p);
+                    stringBuilder.append(this.sayHello(g, p));
             }
         }
+        return stringBuilder.toString();
     }
 
-    public void removePerson(Person p) {
+    public String removePerson(Person p) {
+        StringBuilder stringBuilder = new StringBuilder();
         if (p == null)
-            return;
-        this.people.removePerson(p);
+            return "";
+        stringBuilder.append(this.people.removePerson(p));
         ArrayList<Person> group = this.people.getList();
         if (!group.isEmpty()) {
             for (Person g : group) {
-                this.sayBye(g, p);
+                stringBuilder.append(this.sayBye(g, p));
             }
         }
+        return stringBuilder.toString();
     }
 
-    public void showParticipants() {
+    public String showParticipants() {
+        StringBuilder stringBuilder = new StringBuilder("At the moment taking part in conversation:\n");
         ArrayList<Person> a = this.people.getList();
-        System.out.println("At the moment taking part in conversation:");
-        a.forEach(System.out::println);
+        a.forEach(person -> stringBuilder.append(person.toString()));
+        return stringBuilder.toString();
     }
 
-    public void countPeopleWithState(State state) {
-        ArrayList<Person> a = this.people.getList();
-        System.out.print("Amount of people who are " + state + ": ");
-        System.out.println(a.stream().filter((person) -> person.getState().equals(state)).count());
+    public long countPeopleWithState(State state) {
+        return (this.people.getList().stream().filter((person) -> person.getState().equals(state)).count());
     }
 
-    public void randomAction(Person p){
+    public String randomAction(Person p){
         if (p == null)
-            return;
+            return "";
         switch ((int) (Math.random()*10)) {
             case 0:
             case 1:
-                tellStory(p);
-                break;
+                return tellStory(p);
             case 2:
             case 3:
-                sayPhrase(p, "Hey guys, wanna some beer?");
+                return sayPhrase(p, "Hey guys, wanna some beer?");
             case 4:
             case 5:
-                tellJoke(p);
-                break;
+                return tellJoke(p);
             case 6:
             case 7:
-                argue(p, getPeople().get(0));
-                break;
+                return argue(p, getPeople().get(0));
             case 8:
             case 9:
-                discuss(p, getPeople().get(getPeople().size() - 1), "something");
-                break;
+                return discuss(p, getPeople().get(getPeople().size() - 1), "something");
             default:
-                talk(p, getPeople().get(getPeople().size() - 1));
+                return talk(p, getPeople().get(getPeople().size() - 1));
         }
     }
 

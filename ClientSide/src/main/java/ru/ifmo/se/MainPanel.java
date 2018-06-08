@@ -1,14 +1,9 @@
 package ru.ifmo.se;
 
 import ru.ifmo.se.enums.State;
-import ru.ifmo.se.person.Known;
 import ru.ifmo.se.person.Person;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
@@ -73,9 +68,9 @@ public class MainPanel extends JFrame {
             String[] node = jTree.getLastSelectedPathComponent().toString().split(" ");
             Person selectedPerson;
             if (node.length > 1)
-                selectedPerson = new Known(node[0], node[1]);
+                selectedPerson = new Person(node[0], node[1]);
             else
-                selectedPerson = new Known(node[0]);
+                selectedPerson = new Person(node[0]);
             for (Person person: app.collec) {
                 if (person.equals(selectedPerson)) {
                     resLabel.setText(person.toString() + " " + person.getTime().toString());

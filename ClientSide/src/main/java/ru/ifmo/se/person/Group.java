@@ -7,17 +7,15 @@ public class Group implements InteractionWithGroup{
     private ArrayList<Person> people = new ArrayList<>();
 
     public ArrayList<Person> getList(){
-        ArrayList<Person> a = new ArrayList<>(this.people);
-        return a;
+        return this.people;
     }
-    public void addPerson(Person p){
-        System.out.println(p.toString() + " enters.");
-        p.describe();
+    public String addPerson(Person p){
         this.people.add(p);
+        return p.toString() + " enters." + p.description();
         }
-    public void removePerson(Person p){
-        System.out.println(p.toString() + " leaves.");
+    public String removePerson(Person p){
         this.people.remove(p);
+        return p.toString() + " leaves.";
     }
     public boolean isAnyone(){
         return !this.people.isEmpty();
@@ -32,25 +30,27 @@ public class Group implements InteractionWithGroup{
         }
         return f;
     }
-    public void setStateForEach(double chance){
+    public String setStateForEach(double chance){
+        StringBuilder string = new StringBuilder();
         for (Person g: this.people){
             double chanceC = chance + Math.random();
             if (chanceC < 0.5) {
                 g.setState(State.BORED);
-                System.out.println(g.toString() + " is bored.");
+                string.append(g.toString()).append(" is bored.");
             }
             else
                 if (chanceC > 0.5 && chanceC < 1) {
                     g.setState(State.ANGRY);
-                    System.out.println(g.toString() + " is angry.");
+                    string.append(g.toString()).append(" is angry.");
                 }
                 else
                     if (chanceC > 1 && chanceC < 1.5) {
                         g.setState(State.INTERESTED);
-                        System.out.println(g.toString() + " is interested.");
+                        string.append(g.toString()).append(" is interested.");
                     }
                     else
-                        System.out.println(g.toString() + " doesn't care.");
+                        string.append(g.toString()).append(" doesn't care.");
         }
+        return string.toString();
     }
 }
