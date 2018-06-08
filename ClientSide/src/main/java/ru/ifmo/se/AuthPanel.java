@@ -103,4 +103,8 @@ public class AuthPanel extends JFrame {
                                 .addComponent(cancelButton)).addGap(10)
                         .addComponent(serverAnsw,200,250,300));
     }
+
+    public void setLabel(String string){
+        serverAnsw.setText(string);
+    }
 }

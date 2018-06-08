@@ -128,7 +128,6 @@ public class ClientApp {
     }
 
     private void quit(){
-        sc.close();
         toServer.close();
         try {
             channel.close();
@@ -171,9 +170,8 @@ public class ClientApp {
     public String addObject(String data) {
         try {
             Person person = JsonConverter.jsonToObject(data, Known.class);
-            person.setState();
-            person.getSteps_from_door();
-            person.set_X_Y();
+            person.generateState();
+            person.setSteps_from_door((int) (Math.random() * 100));
             if (person.getName() != null) {
                 if (this.collec.add(person)) {
                     System.out.println("Current collection has been updated by client.");

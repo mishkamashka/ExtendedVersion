@@ -65,7 +65,6 @@ public abstract class Clothes implements Serializable {
             System.out.println("No more patches can be added.");
         if (this.patches[i] == Patch.NONE)
             this.patches[i] = patch;
-
     }
 
     @Override

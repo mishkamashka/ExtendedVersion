@@ -1,16 +1,12 @@
 package ru.ifmo.se.person;
 
-import ru.ifmo.se.annotations.JORM;
-import ru.ifmo.se.annotations.JORMIgnoredColumn;
 import ru.ifmo.se.enums.Material;
 import ru.ifmo.se.enums.Patch;
 
 import java.io.Serializable;
 
-@JORM
 public abstract class Clothes implements Serializable {
     private String colour;
-    @JORMIgnoredColumn
     private Patch[] patches = {Patch.NONE, Patch.NONE, Patch.NONE, Patch.NONE, Patch.NONE};
     private Material material = Material.NONE;
 
@@ -69,7 +65,6 @@ public abstract class Clothes implements Serializable {
             System.out.println("No more patches can be added.");
         if (this.patches[i] == Patch.NONE)
             this.patches[i] = patch;
-
     }
 
     @Override

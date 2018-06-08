@@ -1,8 +1,6 @@
 package ru.ifmo.se.person;
 
 import ru.ifmo.se.enums.State;
-import ru.ifmo.se.exceptions.NotEnoughMoneyException;
-import ru.ifmo.se.exceptions.TooMuchMoneyException;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -10,11 +8,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Person implements Serializable, Comparable {
+public class Person implements Serializable, Comparable {
     private String name;
     private String last_name;
     private int age;
-    private int steps_from_door = (int) (Math.random()*100);
+    private int steps_from_door = 0;
     private int x;
     private int y;
     private List<GeneralClothes> generalClothes = new ArrayList<>();
@@ -24,29 +22,27 @@ public abstract class Person implements Serializable, Comparable {
     private Color color;
     private ZonedDateTime time;
 
+    public Person() {
+        time = ZonedDateTime.now();
+    }
+
     public Person(String name) {
         time = ZonedDateTime.now();
         this.name = name;
-        this.setState();
-        getSteps_from_door();
-        set_X_Y();
-    }
-
-    public Person() {
-        time = ZonedDateTime.now();
-        name = "Stranger";
-        this.setState();
-        getSteps_from_door();
-        set_X_Y();
+        this.generateState();
+        this.setSteps_from_door((int) (Math.random()*100));
     }
 
     public Person(String name, String last_name) {
         time = ZonedDateTime.now();
         this.name = name;
         this.last_name = last_name;
-        this.setState();
-        getSteps_from_door();
-        set_X_Y();
+        this.generateState();
+        this.setSteps_from_door((int) (Math.random()*100));
+    }
+
+    public void setName(String name){
+        this.name = name;
     }
 
     public String getName() {
@@ -61,7 +57,12 @@ public abstract class Person implements Serializable, Comparable {
         this.color = color;
     }
 
-    public void setState() {
+    public void setState(State state) {
+        this.state = state;
+        this.color = state.getColor();
+    }
+
+    public void generateState() {
         switch ((int) (Math.random()*10)) {
             case 0:
             case 1:
@@ -83,7 +84,7 @@ public abstract class Person implements Serializable, Comparable {
             default:
                 this.state = State.ANGRY;
         }
-        color = state.getColor();
+        this.color = this.state.getColor();
     }
 
     public State getState() {
@@ -102,7 +103,7 @@ public abstract class Person implements Serializable, Comparable {
         this.time = time;
     }
 
-    public void setLast_name(String last_name) {
+    public void setLastname(String last_name) {
         this.last_name = last_name;
     }
 
@@ -123,15 +124,16 @@ public abstract class Person implements Serializable, Comparable {
         }
     }
 
-    public int getSteps_from_door() {
-        if (steps_from_door == 0)
-            steps_from_door = (int) (Math.random()*100);
-        return steps_from_door;
+    public void setSteps_from_door(int steps) {
+        steps_from_door = steps;
+        x = (int)(Math.random()*100+Math.random()*50);
+        y = (int) Math.sqrt(Math.abs(steps_from_door*steps_from_door - x*x));
     }
 
-    public void set_X_Y(){
-        x = (int)(Math.random()*100+Math.random()*50);
-        y = (int) Math.sqrt(Math.abs(steps_from_door*steps_from_door- x*x));
+    public int getSteps_from_door() {
+        if (steps_from_door == 0)
+            this.setSteps_from_door((int) (Math.random()*100));
+        return steps_from_door;
     }
 
     public int getX() {
@@ -224,37 +226,6 @@ public abstract class Person implements Serializable, Comparable {
         if (tempString.length() > this.toString().length())
             tempString.append(".");
         return tempString.toString();
-    }
-
-    public Bed getBed(double paid) {
-        System.out.println(this.toString() + " pays " + paid + " to get a bed set up.");
-        Bed bed = new Bed();
-        try {
-            bed.checkMoney(paid, bed.price);
-            System.out.println(new GettingBedding() {
-                @Override
-                public String giveSomething() {
-                    return "Bed is ready.";
-                }
-            }.giveSomething());
-            bed.makeReady();
-        } catch (NotEnoughMoneyException e) {
-            System.out.println("Not enough money.");
-        } catch (TooMuchMoneyException e) {
-            System.out.println("Bed is ready, don't forget your change.");
-            bed.makeReady();
-        } finally {
-            return bed;
-        }
-    }
-
-    public void removeBed(Bed bed) {
-        //without if NothingToRemoveException could be thrown
-        System.out.println(this.toString() + " wants the bed to be removed.");
-        if (bed.isReady()) {
-            bed.makeUnready();
-            System.out.println("Bed is removed.");
-        }
     }
 
     @Override

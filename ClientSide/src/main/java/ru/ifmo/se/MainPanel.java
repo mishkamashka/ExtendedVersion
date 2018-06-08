@@ -18,48 +18,47 @@ import java.text.NumberFormat;
 import java.util.*;
 
 public class MainPanel extends JFrame {
-    ResourceBundle bundle;
-    JMenu menu;
-    JMenuBar jMenuBar;
-    JMenuItem jMenuItem;
-    JLabel label;
-    JLabel resLabel;
-    JLabel ageLabel;
-    JLabel distLabel;
-    JTextField textField;
-    JFormattedTextField formattedTextField;
-    JTree jTree;
-    JButton addButton;
-    JButton remButton;
-    JButton startButton;
-    JButton stopButton;
-    JButton ruButton;
-    JButton engButton;
-    JButton uaButton;
-    JButton fiButton;
-    JCheckBox checkBoxN;
-    JCheckBox checkBoxA;
-    JCheckBox checkBoxI;
-    JCheckBox checkBoxB;
-    JSlider slider;
-    JPanel jPanel;
-    Container container;
-    DefaultTreeModel model;
-    DefaultMutableTreeNode root;
-    GroupLayout groupLayout;
-    ClientApp app;
-    GraphPanel graphPanel;
-    Thread thread;
-    Set<State> states = new HashSet<>();
-    volatile Set<Person> persons = new HashSet<>();
-    int age;
-    long distance;
+    private ResourceBundle bundle;
+    private JMenu menu;
+    private JMenuBar jMenuBar;
+    private JMenuItem jMenuItem;
+    private JLabel label;
+    private JLabel resLabel;
+    private JLabel ageLabel;
+    private JLabel distLabel;
+    private JTextField textField;
+    private JFormattedTextField formattedTextField;
+    private JTree jTree;
+    private JButton addButton;
+    private JButton remButton;
+    private JButton startButton;
+    private JButton stopButton;
+    private JButton ruButton;
+    private JButton engButton;
+    private JButton uaButton;
+    private JButton fiButton;
+    private JCheckBox checkBoxN;
+    private JCheckBox checkBoxA;
+    private JCheckBox checkBoxI;
+    private JCheckBox checkBoxB;
+    private JSlider slider;
+    private JPanel jPanel;
+    private Container container;
+    private DefaultTreeModel model;
+    private DefaultMutableTreeNode root;
+    private GroupLayout groupLayout;
+    private ClientApp app;
+    private GraphPanel graphPanel;
+    private Thread thread;
+    private Set<State> states = new HashSet<>();
+    private volatile Set<Person> persons = new HashSet<>();
+    private int age;
+    private long distance;
     volatile static boolean isAuthorized = false;
 
     public MainPanel() {
         app = new ClientApp();
         bundle = ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", Locale.getDefault());
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(bundle.getString("title"));
         setResizable(false);
@@ -70,20 +69,17 @@ public class MainPanel extends JFrame {
         container.add(jPanel);
         root = new DefaultMutableTreeNode("People");
         jTree = new JTree(root);
-        jTree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                String[] node = jTree.getLastSelectedPathComponent().toString().split(" ");
-                Person selectedPerson;
-                if (node.length > 1)
-                    selectedPerson = new Known(node[0], node[1]);
-                else
-                    selectedPerson = new Known(node[0]);
-                for (Person person: app.collec) {
-                    if (person.equals(selectedPerson)) {
-                        resLabel.setText(person.toString() + " " + person.getTime().toString());
-                        break;
-                    }
+        jTree.addTreeSelectionListener(e -> {
+            String[] node = jTree.getLastSelectedPathComponent().toString().split(" ");
+            Person selectedPerson;
+            if (node.length > 1)
+                selectedPerson = new Known(node[0], node[1]);
+            else
+                selectedPerson = new Known(node[0]);
+            for (Person person: app.collec) {
+                if (person.equals(selectedPerson)) {
+                    resLabel.setText(person.toString() + " " + person.getTime().toString());
+                    break;
                 }
             }
         });
@@ -170,30 +166,24 @@ public class MainPanel extends JFrame {
         jMenuBar = new JMenuBar();
         menu = new JMenu(bundle.getString("menu"));
         jMenuItem = new JMenuItem(bundle.getString("load"));
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                ClientApp.toServer.println("data_request");
-                app.clear();
-                app.load();
-                updateTree();
-            }
+        jMenuItem.addActionListener(a -> {
+            ClientApp.toServer.println("data_request");
+            app.clear();
+            app.load();
+            updateTree();
         });
         menu.add(jMenuItem);
         jMenuItem = new JMenuItem(bundle.getString("save"));
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                ClientApp.toServer.println("save");
-                app.giveCollection();
-                resLabel.setText(app.gettingResponse());
-            }
+        jMenuItem.addActionListener(a -> {
+            ClientApp.toServer.println("save");
+            app.giveCollection();
+            resLabel.setText(app.gettingResponse());
         });
         menu.add(jMenuItem);
         jMenuItem = new JMenuItem(bundle.getString("clear"));
-        jMenuItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a) {
-                app.clear();
-                updateTree();
-            }
+        jMenuItem.addActionListener(a -> {
+            app.clear();
+            updateTree();
         });
         menu.add(jMenuItem);
         jMenuBar.add(menu);
@@ -205,118 +195,87 @@ public class MainPanel extends JFrame {
         resLabel = new JLabel();
         textField = new JTextField("{\"name\":\"Andy\"}",15);
         addButton = new JButton(bundle.getString("addButton"));
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String string = textField.getText();
-                resLabel.setText(app.addObject(string));
-                updateTree();
-            }
+        addButton.addActionListener(e -> {
+            String string = textField.getText();
+            resLabel.setText(app.addObject(string));
+            updateTree();
         });
         remButton = new JButton(bundle.getString("remButton"));
-        remButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String string = textField.getText();
-                resLabel.setText(app.removeGreater(string));
-                updateTree();
-            }
+        remButton.addActionListener(e -> {
+            String string = textField.getText();
+            resLabel.setText(app.removeGreater(string));
+            updateTree();
         });
         startButton = new JButton(bundle.getString("startButton"));
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                thread = new Thread(() -> {
-                    if (formattedTextField.getValue() != null)
-                        distance = (Long) formattedTextField.getValue();
-                    else distance = 20000;
-                    int i = 0;
-                    app.collec.forEach(person -> {
-                        for (State state: states){
-                            if (person.getState().equals(state) && (person.getAge() >= age) && (person.getSteps_from_door() <= distance))
-                                persons.add(person);
-                        }
-                    });
-                    int color = maxColor();
-                    while (i < persons.size()*3) {
-                        i = makeBrighter();
-                        try {
-                            Thread.sleep(5000/color);
-                        } catch (InterruptedException ee) {
-                            return;
-                        }
-                    }
-                    i = 0;
-                    while (i < persons.size()*3) {
-                        i = makeDarker();
-                        try {
-                            Thread.sleep(5000/color);
-                        } catch (InterruptedException ee) {
-                            return;
-                        }
+        startButton.addActionListener(e -> {
+            thread = new Thread(() -> {
+                if (formattedTextField.getValue() != null)
+                    distance = (Long) formattedTextField.getValue();
+                else distance = 20000;
+                int i = 0;
+                app.collec.forEach(person -> {
+                    for (State state: states){
+                        if (person.getState().equals(state) && (person.getAge() >= age) && (person.getSteps_from_door() <= distance))
+                            persons.add(person);
                     }
                 });
-                thread.start();
-                persons.clear();
-            }
+                int color = maxColor();
+                while (i < persons.size()*3) {
+                    i = makeBrighter();
+                    try {
+                        Thread.sleep(5000/color);
+                    } catch (InterruptedException ee) {
+                        return;
+                    }
+                }
+                i = 0;
+                while (i < persons.size()*3) {
+                    i = makeDarker();
+                    try {
+                        Thread.sleep(5000/color);
+                    } catch (InterruptedException ee) {
+                        return;
+                    }
+                }
+            });
+            thread.start();
+            persons.clear();
         });
         stopButton = new JButton(bundle.getString("stopButton"));
-        stopButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                thread.interrupt();
-            }
-        });
+        stopButton.addActionListener(e -> thread.interrupt());
         checkBoxN = new JCheckBox(bundle.getString("checkBoxN"));
-        checkBoxN.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (checkBoxN.isSelected())
-                    states.add(State.NEUTRAL);
-                else
-                    states.remove(State.NEUTRAL);
-            }
+        checkBoxN.addChangeListener(e -> {
+            if (checkBoxN.isSelected())
+                states.add(State.NEUTRAL);
+            else
+                states.remove(State.NEUTRAL);
         });
         checkBoxA = new JCheckBox(bundle.getString("checkBoxA"));
-        checkBoxA.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (checkBoxA.isSelected())
-                    states.add(State.ANGRY);
-                else
-                    states.remove(State.ANGRY);
-            }
+        checkBoxA.addChangeListener(e -> {
+            if (checkBoxA.isSelected())
+                states.add(State.ANGRY);
+            else
+                states.remove(State.ANGRY);
         });
         checkBoxI = new JCheckBox(bundle.getString("checkBoxI"));
-        checkBoxI.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (checkBoxI.isSelected())
-                    states.add(State.INTERESTED);
-                else
-                    states.remove(State.INTERESTED);
-            }
+        checkBoxI.addChangeListener(e -> {
+            if (checkBoxI.isSelected())
+                states.add(State.INTERESTED);
+            else
+                states.remove(State.INTERESTED);
         });
         checkBoxB = new JCheckBox(bundle.getString("checkBoxB"));
-        checkBoxB.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (checkBoxB.isSelected())
-                    states.add(State.BORED);
-                else
-                    states.remove(State.BORED);
-            }
+        checkBoxB.addChangeListener(e -> {
+            if (checkBoxB.isSelected())
+                states.add(State.BORED);
+            else
+                states.remove(State.BORED);
         });
         ageLabel = new JLabel(bundle.getString("ageLabel"));
         slider = new JSlider(0,120,25);
         slider.setPaintLabels(true);
         slider.setMajorTickSpacing(25);
-        slider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                age = slider.getValue();
-            }
-        });
+        slider.addChangeListener(e -> age = slider.getValue());
         distLabel = new JLabel(bundle.getString("distLabel"));
         formattedTextField = new JFormattedTextField(NumberFormat.getIntegerInstance());
         graphPanel = new GraphPanel(app);
@@ -327,7 +286,6 @@ public class MainPanel extends JFrame {
                 int y = e.getY();
                 int personX;
                 int personY;
-                Person person;
                 for (Map.Entry<Person, Ellipse2D> entry: graphPanel.ellipsMap.entrySet()){
                     personX = entry.getKey().getX();
                     personY = entry.getKey().getY();
@@ -357,33 +315,13 @@ public class MainPanel extends JFrame {
             }
         });
         ruButton = new JButton("ru");
-        ruButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("ru_RU")));
-            }
-        });
+        ruButton.addActionListener(e -> changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("ru_RU"))));
         engButton = new JButton("eng");
-        engButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("en")));
-            }
-        });
+        engButton.addActionListener(e -> changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("en"))));
         fiButton = new JButton("fi");
-        fiButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("fi")));
-            }
-        });
+        fiButton.addActionListener(e -> changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("fi"))));
         uaButton = new JButton("ua");
-        uaButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("uk")));
-            }
-        });
+        uaButton.addActionListener(e -> changeLocale(ResourceBundle.getBundle("ru.ifmo.se.resources.GuiLabels", new Locale("uk"))));
     }
 
     private int makeBrighter(){

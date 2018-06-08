@@ -19,6 +19,7 @@ public class Person implements Serializable, Comparable {
     private List<Shoes> shoes = new ArrayList<>();
     private List<Accessories> accessories = new ArrayList<>();
     private State state;
+    private Color color;
     private ZonedDateTime time;
 
     public Person() {
@@ -48,8 +49,17 @@ public class Person implements Serializable, Comparable {
         return name;
     }
 
-    public void setState(State state){
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public void setState(State state) {
         this.state = state;
+        this.color = state.getColor();
     }
 
     public void generateState() {
@@ -74,6 +84,7 @@ public class Person implements Serializable, Comparable {
             default:
                 this.state = State.ANGRY;
         }
+        this.color = this.state.getColor();
     }
 
     public State getState() {
